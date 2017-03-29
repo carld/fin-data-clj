@@ -1,9 +1,11 @@
 # fin-data
 
-This application will parse the OCR rate from the RBNZ web site, save the rate, announcement date, and link to announcement in a PostgresQL database.
-It serves the OCR rate data on request by way of a GraphQL query.
+This application will parse the Official Cash Rate from the Reserve Bank of New Zealand web site.
+It saves the rate, announcement date, and link to the announcement in a PostgresQL database.
+It serves historical OCR changes on request by a GraphQL query.
 
-The website provides only announcement date, and this application assumes the time is assumed to be 9am NZ local time on that date.  In the query results the announced_on field is an ISO8601 combined UTC date and time.
+This application assumes 9:00 AM NZ local time on the announcement date.
+In the query results the announced_on field is an ISO8601 combined UTC date and time.
 
 ## Installation
 
@@ -15,26 +17,40 @@ The website provides only announcement date, and this application assumes the ti
     $ lein run -m fin-data.db     # create database table and populate with data
     $ lein ring server-headless   # runs the http server
 
-In a browser,
+In a browser location bar, try it out with
 
     http://localhost:3000/graphql?query={official_cash_rates{announced_on+rate+link}}
 
+Or using curl
 
-## Options
+    curl -X POST -H "Content-Type:application/json" -d '
+      {
+        "query":"{official_cash_rates { announced_on rate link }}"
+      } ' http://localhost:3000/graphql
 
+Example response,
 
+    {
+    "data": {
+      "official_cash_rates": [
+        {
+          "announced_on": "2017-03-22T20:00:00Z",
+          "rate": 1.75,
+          "link": "http://www.rbnz.govt.nz/news/2017/03/official-cash-rate-unchanged-at-1-75-percent"
+        },
+        {
+          "announced_on": "2017-02-08T20:00:00Z",
+          "rate": 1.75,
+          "link": "http://www.rbnz.govt.nz/news/2017/02/official-cash-rate-unchanged-at-1-75-percent"
+        },
+        {
+          "announced_on": "2016-11-09T20:00:00Z",
+          "rate": 1.75,
+          "link": "http://www.rbnz.govt.nz/news/2016/11/official-cash-rate-reduced-to-1-75-percent"
+        },
+      }
+    }
 
-## Examples
-
-
-
-### Bugs
-
-
-
-### Any Other Sections
-### That You Think
-### Might be Useful
 
 ## License
 
