@@ -9,10 +9,9 @@
             [clojure.java.jdbc :as sql]
             [environ.core :as env]))
 
-(def db-spec {:connection-uri  (env/env :database-url "jdbc:postgresql://localhost:5432/fin-data")})
-
-; http://localhost:3002/graphql?query={transactions(account_id:1){id+amount+created_at}}
-; http://localhost:3002/graphql?query={account(id:1){id+name+transactions+{id+amount+created_at}}}
+(def db-spec
+  {:connection-uri
+   (env/env :database-url "jdbc:postgresql://localhost:5432/fin-data")})
 
 (def fin-data-schema "
 type OfficialCashRates {
@@ -30,17 +29,21 @@ schema {
 }
 ")
 
-(defn get-official-cash-rates []
+(defn get-official-cash-rates
+  []
   (sql/with-db-connection [db db-spec]
-    (try (sql/query db
-                    ["SELECT * FROM official_cash_rates"])
-         (catch Exception _))))
+    (try
+      (sql/query
+       db
+       ["SELECT * FROM official_cash_rates ORDER BY announced_on DESC"])
+      (catch Exception _))))
 
-(defn starter-resolver-fn [type-name field-name]
+(defn starter-resolver-fn
+  [type-name field-name]
   (match/match
    [type-name field-name]
    ["Query" "official_cash_rates"] (fn [context parent args]
-                              (get-official-cash-rates))
+                                     (get-official-cash-rates))
    :else nil))
 
 (def parsed-schema (parser/parse fin-data-schema))

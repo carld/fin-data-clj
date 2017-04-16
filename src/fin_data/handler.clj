@@ -11,11 +11,15 @@
             [clojure.walk]))
 
 (defroutes routes
-  (GET "/" [] "Hello, World!")
-  (GET "/graphql" [schema query variables :as request]
+  (GET "/"
+       []
+       (response/redirect "index.html"))
+  (GET "/graphql"
+       [schema query variables :as request]
        (response/response
         (graphql/execute query variables)))
-  (POST "/graphql" [schema query variables :as request]
+  (POST "/graphql"
+        [schema query variables :as request]
         (response/response
          (try
            (graphql/execute query (clojure.walk/stringify-keys variables))
