@@ -45,8 +45,7 @@
             :announced_on (-> (re-seq #"\d+\s+\w+\s+\d+" date)
                               first
                               parse-date
-                              (l/format-local-time :date-time)
-                              )
+                              c/to-sql-time)
             :link (let [link (-> (re-seq #"href=\"(.+)\"" date)
                                  first
                                  second)]
